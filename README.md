@@ -6,7 +6,9 @@ This is an extended implementation of the Stanford Research Institute Problem So
 
 This is a general description of the way the STRIPS proccesses information and how to think in terms of STRIPS. If you are already familiar with this algorithm, feel free to skip this section.
 
-If you are writing a program to solve a problem, the first step is to convert the problem to a form that is understandable to a computer. Let's first look at how STRIPS describes problems. STRIPS describes problems in terms of states and actions. A state is a collection of all of the information relevant to a problem at a given step. For example, in the rubiks cube case, the state of the rubiks cube is the color of all of its squares. In this implementation of STRIPS, the state is an arbitrary object that is created by the user. The actions are all of the things that can be done to change the state. In the rubiks cube example, the actions are all of ways you can rotate each face of the rubiks cube. These actions can be applied to the state, modifying it. For example, an action such as 'Move top face counterclockwise' could be applied to a cube, rotating all of the squares on the top section of the cube counterclockwise 90 degrees. The actions should also contain information on the cases that they are valid. This doesn't apply in the rubiks cube example as you are always allowed to do every move, but for other problems, this is not the case. For example, the puzzle [Towers of hanoi](https://en.wikipedia.org/wiki/Tower_of_Hanoi) has restriction as to when moves are allowed. The puzzle involves moving rings around between pegs, and one of the main rules is that a a ring cannot be placed above another ring smaller than itself. This is an example of a case where actions can only be taken in certain circumstances. In this implementation, each action contains a function which takes a state as a parameter and returns a copy of the state that has been modified by the action, as well as a function that takes a state as a parameter and returns whether or not the given action can be performed.
+If you are writing a program to solve a problem, the first step is to convert the problem to a form that is understandable to a computer. Let's first look at how STRIPS describes problems. STRIPS describes problems in terms of states and actions. A state is a collection of all of the information relevant to a problem at a given step. For example, in the rubiks cube case, the state of the rubiks cube is the color of all of its squares. In this implementation of STRIPS, the state is an arbitrary object that is created by the user. The actions are all of the things that can be done to change the state. In the rubiks cube example, the actions are all of ways you can rotate each face of the rubiks cube. These actions can be applied to the state, modifying it. 
+
+For example, an action such as 'Move top face counterclockwise' could be applied to a cube, rotating all of the squares on the top section of the cube counterclockwise 90 degrees. The actions should also contain information on the cases that they are valid. This doesn't apply in the rubiks cube example as you are always allowed to do every move, but for other problems, this is not the case. For example, the puzzle [Towers of hanoi](https://en.wikipedia.org/wiki/Tower_of_Hanoi) has restriction as to when moves are allowed. The puzzle involves moving rings around between pegs, and one of the main rules is that a a ring cannot be placed above another ring smaller than itself. This is an example of a case where actions can only be taken in certain circumstances. In this implementation, each action contains a function which takes a state as a parameter and returns a copy of the state that has been modified by the action, as well as a function that takes a state as a parameter and returns whether or not the given action can be performed.
 
 The job of STRIPS is to take an initial state, a goal state, and a list of actions, and determine an efficient sequence of actions that will transform the initial state to the goal state. In the rubiks cube example, you would provide a scrambled rubiks cube as the initial state, a solved rubiks cube as the goal state, and the moves you can do on the rubiks cube as the actions. STRIPS would then return a list of the moves that you need to do to solve the rubiks cube.
 
@@ -23,7 +25,7 @@ This is a guide to using to using this library. Here a basic program solving a r
 
 To run STRIPS you need to do the following the following:
 
-1. **Create A State Template**  
+&nbsp;&nbsp;&nbsp;&nbsp;**1. Create A State Template**  
 
 A state template is an object that contains 2 functions. The first function is called  "heuristicFunc" which is the heuristic distance estimation for A*. It must have 2 parameters that are both states, (state,goal) and it returns a number that gets smaller the closer the parameter "state" is to the parameter "goal". The second funciton is called "stateStringFunc". It has 1 parameter (state) and returns a string which is a unique itdentifier for the state. It must return different strings for different states and must return THE SAME string for 2 equivalent states. More information can be found on both of these functions below.  
 
@@ -34,9 +36,10 @@ var stateTemplate = {
     heuristicFunc: getCubeDistance,
     stateStringFunc: convertCubeToString
 };
-```
+```  
+<br>  
 
-2. **Create Actions**
+&nbsp;&nbsp;&nbsp;&nbsp;**2. Create Actions**
 
 You must create objects describing the actions. Each action contains the following information:
 
@@ -97,7 +100,7 @@ You must create objects describing the actions. Each action contains the followi
 
 Example:
 ```js
-var moveBlockAction = {
+var rotateFaceAction = {
     //Action type label
     type: "rotateFace",
 
@@ -138,7 +141,58 @@ var moveBlockAction = {
     }
 };
 ```
+<br>
 
+&nbsp;&nbsp;&nbsp;&nbsp;**3. Create the STRIPS instance
+
+First a STRIPS object must be created with the state template in the constructor.
+```js
+let stripsInstance = new STRIPS(stateTemplate);
+```
+<br>  
+
+Then the actions need to be added to this strips instance. This is done using the addAction function.
+```js
+stripsInstance.addAction(moveBlockAction);
+```
+<br>  
+
+&nbsp;&nbsp;&nbsp;&nbsp;**4. Run STRIPS
+
+STRIPS is run using the aStarSearch function. The parameters of this function are listed below:
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Purpose</th>
+    </tr>
+    
+    <tr>
+        <td>initialState</td>
+        <td>State</td>
+        <td>This is the inital state</td>
+    </tr>
+    
+    <tr>
+        <td>goalState</td>
+        <td>State</td>
+        <td>This is the state that STRIPS is trying to reach</td>
+    </tr>
+    
+     <tr>
+        <td>stepLimit</td>
+        <td>Integer</td>
+        <td>Stops the code after this number of loop cycles to avoid infinite or practically infinite loops.</td>
+    </tr>
+    
+     <tr>
+        <td>stepLimit</td>
+        <td>State</td>
+        <td>This is the state that STRIPS is trying to reach</td>
+    </tr>
+    
+</table>
 
 
 
