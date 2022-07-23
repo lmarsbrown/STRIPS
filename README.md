@@ -246,7 +246,9 @@ let interval = setInterval(()=>{
 },1000);
 ```
 
-### The State
+## Example & Tips
+
+Here is an example of the proccess of implementing a program to solve a rubiks cube. 
 
 The first step in implementing STRIPS is to figure out how you are going to represent 
 
