@@ -16,16 +16,11 @@ The job of STRIPS is to take an initial state, a goal state, and a list of actio
 
 
 
-## Guide
+## Overall Implementation
 
-This is a guide to using to using this library. Here a basic program solving a rubiks cube will be implemented.
+To run STRIPS you need to do the following:
 
-
-### Overall Implementation
-
-To run STRIPS you need to do the following the following:
-
-&nbsp;&nbsp;&nbsp;&nbsp;**1. Create A State Template**  
+### Create A State Template
 
 A state template is an object that contains 2 functions. The first function is called  "heuristicFunc" which is the heuristic distance estimation for A*. It must have 2 parameters that are both states, (state,goal) and it returns a number that gets smaller the closer the parameter "state" is to the parameter "goal". The second funciton is called "stateStringFunc". It has 1 parameter (state) and returns a string which is a unique itdentifier for the state. It must return different strings for different states and must return THE SAME string for 2 equivalent states. More information can be found on both of these functions below.  
 
@@ -39,7 +34,7 @@ var stateTemplate = {
 ```  
 <br>  
 
-&nbsp;&nbsp;&nbsp;&nbsp;**2. Create Actions**
+### Create Actions
 
 You must create objects describing the actions. Each action contains the following information:
 
@@ -143,7 +138,7 @@ var rotateFaceAction = {
 ```
 <br>  
 
-&nbsp;&nbsp;&nbsp;&nbsp;**3. Create the inital and goal states**
+### Create the inital and goal states
 
 The way that you create your states is mostly up to you as long as you create functions for the state. Here is an example of creating some states:
 
@@ -153,7 +148,7 @@ let goalState = createSolvedCube();
 ```
 <br>  
 
-&nbsp;&nbsp;&nbsp;&nbsp;**4. Create the STRIPS instance**
+### Create the STRIPS instance
 
 First a STRIPS object must be created with the state template in the constructor.
 ```js
@@ -167,7 +162,7 @@ stripsInstance.addAction(moveBlockAction);
 ```
 <br>  
 
-&nbsp;&nbsp;&nbsp;&nbsp;**5. Run STRIPS**
+### Run STRIPS
 
 STRIPS is run using the aStarSearch function. The parameters of this function are listed below:
 
@@ -231,7 +226,7 @@ var actionList = stripsInstance.aStarSearch(initState,goalState,1000,false,clone
 ```
 <br>  
 
-&nbsp;&nbsp;&nbsp;&nbsp;**6. Parse the computed actions**
+### Parse the computed actions
 
 After the actions have been found, they need to be translated into actions either in the real world or in another place in your program, this varies based on the case, but it generally involves iterating through the actions and executing them.  
 
