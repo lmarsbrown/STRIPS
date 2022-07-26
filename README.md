@@ -12,10 +12,11 @@ As an example, think of a slide puzzle. Aslide puzzle is a puzzle consisting of 
 
 The job of STRIPS is to take an initial state, a goal state, and a list of actions, and determine an effecient sequence of actions that will transform the initial state to the goal state. For example, you could provide STRIPS with an unsolved slide puzzle as an initial state, a solved puzzle as a goal state, and the ways that you can move the pieces as actions, and STRIPS would return all of the moves that need to be made to solve the puzzle.
 
-##Where Is STRIPS Applicable
+## Where Is STRIPS Applicable
 
 To make the best use of STRIPS, it is important to know where it is and where it isn't applicable. As described in the [overview](#overview), STRIPS is used to determine the best set of actions to get from one state  to another. This means that your problem has to have a clear, easy to describe, and deterministic state. For example, chess would not be a good candidate for a STRIPS problem as the state changes with player moves which cannot easily be predicted. It also needs to have a goal state. STRIPS is not designed to optimize a cost function that doesnt have a minimum cost. This means that it cant be used for problems like the game [snake](https://en.wikipedia.org/wiki/Snake_(video_game_genre)) where you have to move around collecting food indefinitely.
 
+Even if a problem can technically be solved with STRIPS, that doesn't mean it can be solved in a useful amount of time. There are 2 primary considerations when trying to estimate the difficulty of solving a problem for STRIPS. The first consideration is the ability to tell if an action improves or worsens a state. This is dependent on the [Heuristic function](TODO). If the distance to the goal doesnt continuously shrink as a state gets closer, STRIPS will have a hard time getting to the goal. This is amplified by the second consideration which is the size of the state space. The "state space" is essentially all of the possible states connected together by actions. Since STRIPS works by pathfinding through this space, large spaces can lower performace. One big consideration is the number of possible actions per state. For example, if a state has 40 possible actions, and it takes a minimum of 5 steps for the heuristic distance function to change, then STRIPS will have to explore 40 to the power of 5 states which is over 100 million states.  
 
 
 ## Overall Implementation
