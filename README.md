@@ -1,10 +1,10 @@
 # STRIPS
 
-This is an extended implementation of the Stanford Research Institute Problem Solver (STRIPS), an automated planning algorithim. STRIPS can be used to solve a wide variety of problems ranging from navigating a room to solving a rubiks cube. 
+This is an extended implementation of the Stanford Research Institute Problem Solver (STRIPS), an automated planning algorithim. STRIPS can be used to solve a wide variety of problems ranging from navigating a room to solving a slide puzzle. 
 
 ## Overview
 
-This is a general description of the way the STRIPS proccesses information and how to think in terms of STRIPS. If you are already familiar with this algorithm, feel free to skip this section.
+This is a general description of the way the STRIPS proccesses information and how to think in terms of STRIPS. If you are already familiar with this algorithm, feel free to skip this section. 
 
 If you are writing a program to solve a problem, the first step is to convert the problem to a form that is understandable to a computer. Let's first look at how STRIPS describes problems. STRIPS describes problems in terms of states and actions. A state is a collection of all of the information relevant to a problem at a given step, and the actions are all of the things that can be done to modify said state.
 
@@ -14,9 +14,17 @@ The job of STRIPS is to take an initial state, a goal state, and a list of actio
 
 ## Where Is STRIPS Applicable
 
-To make the best use of STRIPS, it is important to know where it is and where it isn't applicable. As described in the [overview](#overview), STRIPS is used to determine the best set of actions to get from one state  to another. This means that your problem has to have a clear, easy to describe, and deterministic state. For example, chess would not be a good candidate for a STRIPS problem as the state changes with player moves which cannot easily be predicted. It also needs to have a goal state. STRIPS is not designed to optimize a cost function that doesnt have a minimum cost. This means that it cant be used for problems like the game [snake](https://en.wikipedia.org/wiki/Snake_(video_game_genre)) where you have to move around collecting food indefinitely.
+To make the best use of STRIPS, it is important to know where it is and where it isn't applicable. As described in the [Overview](#overview), STRIPS is used to determine the best set of actions to get from one state  to another. This means that your problem has to have a clear, easy to describe, and deterministic state. For example, chess would not be a good candidate for a STRIPS problem as the state changes with player moves which cannot easily be predicted. It also needs to have a goal state. STRIPS is not designed to optimize a cost function that doesnt have a minimum cost. This means that it cant be used for problems like the game [Snake](https://en.wikipedia.org/wiki/Snake_(video_game_genre)) where you have to move around collecting food indefinitely.
 
-Even if a problem can technically be solved with STRIPS, that doesn't mean it can be solved in a useful amount of time. There are 2 primary considerations when trying to estimate the difficulty of solving a problem for STRIPS. The first consideration is the ability to tell if an action improves or worsens a state. This is dependent on the [Heuristic function](TODO). If the distance to the goal doesnt continuously shrink as a state gets closer, STRIPS will have a hard time getting to the goal. This is amplified by the second consideration which is the size of the state space. The "state space" is essentially all of the possible states connected together by actions. Since STRIPS works by pathfinding through this space, large spaces can lower performace. One big consideration is the number of possible actions per state. For example, if a state has 40 possible actions, and it takes a minimum of 5 steps for the heuristic distance function to change, then STRIPS will have to explore 40 to the power of 5 states which is over 100 million states.  
+Even if a problem can technically be solved with STRIPS, that doesn't mean it can be solved in a useful amount of time. There are 2 primary considerations when trying to estimate the difficulty of solving a problem for STRIPS. The first consideration is the ability to tell if an action improves or worsens a state. This is dependent on the [Heuristic Function](TODO). If the distance to the goal doesnt continuously shrink as a state gets closer, STRIPS will have a hard time getting to the goal.
+
+This is amplified by the second consideration which is the size of the state space. The "state space" is essentially all of the possible states connected together by actions. Since STRIPS works by pathfinding through this space, large spaces can lower performace. One big consideration is the number of possible actions per state. For example, if a state has 40 possible actions, and it takes a minimum of 5 steps for the heuristic distance function to change, then STRIPS will have to explore 40 to the power of 5 states which is over 100 million states. A combonantion of a suboptimal heuristic distance function and an overly vast state space can get out of hand quickly. 
+
+STRIPS actually solves problems in a similar way to humans. It works by trying moves and following up on moves that bring it closer to the goal. **This means that you can get a good guess as to whether STRIPS can solve a problem, by asking if a human could solve the problem in a reasonable amount of time without prior knowlegde of the problem and without developing an algorithm or stratagy.**
+
+One example of this is a rubiks cube. Since a rubiks cube can easily be represented digitally, and has a clear goal it seems like it should be a good candidate for solving with STRIPS. However, in practice, a rubiks cube more than a couple of steps away from being solved will take an unreasonable amount of time to solve using STRIPS. If you have ever tried to solve a rubiks cube without a clear stratagy, you have probably experienced something similar. The reason that it is difficult to solve a rubiks cube with these methods is that it is difficult to estimate how close the cube is to being solved until a couple moves before completion. It is very easy to make moves that appear to be improving the state of the cube that aren't actually useful. On top of this, the number of moves that can be made per steps is quite large ranging from 6 to 18 depending on which moves you allow. This means that for a scrambled cube, a massive space has to be explored before true progress can be detected making it extremely difficult for STRIPS or a guessing human to solve.
+
+
 
 
 ## Overall Implementation
@@ -249,10 +257,105 @@ let interval = setInterval(()=>{
 },1000);
 ```
 
-## Example & Tips
+## Example
 
-Here is an example of the proccess of implementing a program to solve a rubiks cube. 
+Here is an example of the proccess of implementing a program to solve a slide puzzle.
 
-The first step in implementing STRIPS is to figure out how you are going to represent 
+The first step in implementing STRIPS is to figure out how you are going to represent the state. You can do this is whatever way you want to as long as it is contained in an object. Consider that you will have to write a functions to copy this state and convert it to a string.
+
+The information that the slide puzzle state has to contain is the arangement of the pieces. This can be described by an array with each location in the array representing a location on the board and each entry a number describing the number of the piece at its respective location. Zero can represent the empty space. A solved state would look like:
+
+
+```js
+var solvedPuzzle = 
+{
+    board:
+    [
+        1,2,3,
+        4,5,6,
+        7,8,0
+    ]
+};
+```
+<br>
+
+It is also reccomenended although techincally not required that you write a function to make a deep copy of your state. A function to copy this state is shown below.
+
+```js
+function clonePuzzle(puzzle)
+{
+    let arr = [];
+    for(let i = 0; i < 9; i++)
+    {
+        arr.push(puzzle.board[i]);
+    }
+
+    return {board:arr};
+}
+```
+<br>
+
+Next, the action functions must be implemented. For any given state there is a maximum of 4 possible moves. The pieces from either the top, left, bottom or right of the empty space can be moved to fill the empty space, effectivly swapping the empty space with the piece that you are moving to. Since there are only 4 possible moves, the direction to move can be represented as an int from 0-3. The steps for executing a movement are listed below.
+
+1. Copy the input state
+2. Find the location of the empty space
+3. Find the direction in terms of x,y that the swap occurs
+4. Find the index of the neighboring piece that is being moved
+5. Find the value of the piece being moved
+6. Set the value of the zero location to the value of the the neighboring piece that is being moved
+7. Set the value of the piece that is being moved to zero
+8. Return the modified state
+
+Code executing the above list is shown below
+```js
+function movePiece(puzzle,direction)
+{
+    if(!isMoveAllowed(puzzle,direction))
+    {
+        console.log("Not Allowed");
+        return;
+    }
+    //Copy the input state
+    let out = clonePuzzle(puzzle);
+
+    //Find the location of the empty space
+    let zeroLoc = findZeroLoc(puzzle);
+
+    //Find xy direction
+    let dirXY = parseDirection(direction);
+    
+
+    let dstIndex = zeroLoc[3]+dirXY[0]+dirXY[1]*3;
+    let dstVal = puzzle.board[dstIndex];
+
+    out.board[zeroLoc[3]] = dstVal;
+    out.board[dstIndex] = 0;
+
+    return out;
+}
+
+function parseDirection(direction)
+{
+    let dirArr = [];
+    if(direction == 0)dirArr = [0,-1];
+    if(direction == 1)dirArr = [-1,0];
+    if(direction == 2)dirArr = [0, 1];
+    if(direction == 3)dirArr = [1, 0];
+    return dirArr;
+}
+
+function findZeroLoc(puzzle)
+{
+    let loc = [];
+    for(let i = 0; i < 9; i++)
+    {
+        if(puzzle.board[i] == 0)
+        {
+            return [i%3,Math.floor(i/3),i];
+        }
+    }
+}
+```
+<br>
 
 
