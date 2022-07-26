@@ -261,6 +261,9 @@ let interval = setInterval(()=>{
 
 Here is an example of the proccess of implementing a program to solve a slide puzzle.
 
+
+### The State
+
 The first step in implementing STRIPS is to figure out how you are going to represent the state. You can do this is whatever way you want to as long as it is contained in an object. Consider that you will have to write a functions to copy this state and convert it to a string.
 
 The information that the slide puzzle state has to contain is the arangement of the pieces. This can be described by an array with each location in the array representing a location on the board and each entry a number describing the number of the piece at its respective location. Zero can represent the empty space. A solved state would look like:
@@ -295,6 +298,8 @@ function clonePuzzle(puzzle)
 ```
 <br>
 
+### Action Execution
+
 Next, the action functions must be implemented. For any given state there is a maximum of 4 possible moves. The pieces from either the top, left, bottom or right of the empty space can be moved to fill the empty space, effectivly swapping the empty space with the piece that you are moving to. Since there are only 4 possible moves, the direction to move can be represented as an int from 0-3. The steps for executing a movement are listed below.
 
 1. Copy the input state
@@ -307,6 +312,7 @@ Next, the action functions must be implemented. For any given state there is a m
 8. Return the modified state
 
 Code executing the above list is shown below
+
 ```js
 function movePiece(puzzle,direction)
 {
@@ -325,10 +331,10 @@ function movePiece(puzzle,direction)
     let dirXY = parseDirection(direction);
     
 
-    let dstIndex = zeroLoc[3]+dirXY[0]+dirXY[1]*3;
+    let dstIndex = zeroLoc[2]+dirXY[0]+dirXY[1]*3;
     let dstVal = puzzle.board[dstIndex];
 
-    out.board[zeroLoc[3]] = dstVal;
+    out.board[zeroLoc[2]] = dstVal;
     out.board[dstIndex] = 0;
 
     return out;
@@ -358,4 +364,85 @@ function findZeroLoc(puzzle)
 ```
 <br>
 
+### Action Verification
 
+A funciton also needs to be created determining if an action is valid. An action is invalid if the piece that it is trying to move into the zero position is outside of the puzzle. This occurs when the zero position is on the edge of the puzzle and the direction that the piece is being moved is the towards the edge of the puzzle. A function checking if a move is invalid is shown below
+
+```js
+function isMoveAllowed(puzzle,direction)
+{
+    let zeroLoc = findZeroLoc(puzzle);
+    if(zeroLoc[1] == 0&&direction==0)return false;
+    if(zeroLoc[0] == 0&&direction==1)return false;
+    if(zeroLoc[1] == 2&&direction==2)return false;
+    if(zeroLoc[0] == 2&&direction==3)return false;
+    return true;
+}
+```
+<br>
+
+### Action Object
+
+With the action functions created, they must be compiled along with some other info into an object. The exact requirements for this object can be found in the overall implementation section under [Create Actions](#create-actions). The values for these attributes for this example are listed below
+
+- Type: "movePiece"
+- executeFunction: A function implementing movePiece that uses the params array
+- validFunction: A function implementing isMoveAllowed that uses the params array.
+- costFunction: A function that always returns 1 because the cost of an action does not change based on the state or the parameters in this case
+- getInputsFunc: One parameter is needed that provides the direction to move. The valid values for this parameter are the 4 directions 0,1,2, and 3. This is true no indepentent of the state meaning that this function should always return the array ```[[0,1,2,3]]```
+
+The code for this action is shown below
+
+```js
+var movePieceAction = {
+    //Action type label
+    type: "movePiece",
+
+    //Function that actually changes the state
+    executeFunc: (state, params) => {
+        return movePiece(state, params[0] /*Face to be rotate*/);
+    },
+
+    //Function that checks if the action is valid
+    validFunc: (state, params) => {
+        //You are always allowed to rotate faces
+        return isMoveAllowed(state,params[0]);
+    },
+
+    //Function that returns the cost of the action 
+    costFunc: (state, params) => {
+        return 1;
+    },
+    getInputsFunc: (state)=>
+    {
+        return [[0,1,2,3]];
+    }
+};
+```
+
+### Convert State To String 
+
+Next, the state template functions need to be implemented. Lets first create the stateString function. This is a function that converts a state into a unique string. This string is used to check if 2 states are equal. This function must have the following characteristics:
+
+- Each string must be UNIQUE to its state. 2 different states should never return the same string.
+- A state should always return the same string. You can't just return a random number.
+- 2 states that were derived from different sets of steps that have the same value should return the same string.
+
+A function converting a slide puzzle into a string is shown below 
+
+```js
+function puzzleToString(puzzle)
+{
+    let str = "";
+    for(let i = 0; i < 9; i++)
+    {
+        str += puzzle.board[i];
+    }
+    return str;
+}
+```
+<br>
+
+### Heuristic Distance Function
+
+The second state template function is the heuristic distance function. 
