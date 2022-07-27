@@ -197,7 +197,7 @@ STRIPS is run using the aStarSearch function. The parameters of this function ar
 </tr>
 
  <tr>
-    <td>stepLimit</td>
+    <td>cycleLimit</td>
     <td>Integer</td>
     <td>Stops the code after this number of loop cycles to avoid infinite or practically infinite loops. The number of cycles it took to find a path can be found during a search can be found in the variable instance.cycles.</td>
 </tr>
@@ -205,13 +205,13 @@ STRIPS is run using the aStarSearch function. The parameters of this function ar
  <tr>
     <td>suppressErrors</td>
     <td>Boolean</td>
-    <td>If true an error will not be logged in the console if the search does not succeed within the allowed number of steps.</td>
+    <td>If true an error will not be logged in the console if the search does not succeed within the allowed number of cycles.</td>
 </tr>
 
  <tr>
     <td>suppressErrors</td>
     <td>Boolean</td>
-    <td>If true an error will not be logged in the console if the search does not succeed within the allowed number of steps</td>
+    <td>If true an error will not be logged in the console if the search does not succeed within the allowed number of cycles</td>
 </tr>
 
  <tr>
@@ -223,7 +223,7 @@ STRIPS is run using the aStarSearch function. The parameters of this function ar
  <tr>
     <td>maxExpectedCycles</td>
     <td>Integer</td>
-    <td>To improve performance, only a certain number of nodes are kept. The number of nodes kept is defined by this parameter. When left blank it will default to the step limit</td>
+    <td>To improve performance, only a certain number of nodes are kept. The number of nodes kept is defined by this parameter. When left blank it will default to the cycle limit</td>
 </tr>  
     
 </table>
@@ -256,6 +256,77 @@ let interval = setInterval(()=>{
     }
 },1000);
 ```
+
+### Debugging And Optimization
+
+Once you have implemented STRIPS it is sometimes nessisary to fix bugs and optimize your program to get it to run efficiently. 
+
+#### Benchmark Function
+
+One function that the STRIPS instance has is the benchmark function. This function runs aStarSearch a spesified number of times and then reports back various statisics in the form of a object and optionally logs those statisics to the console. These are the statisics that are returned:
+
+<table>
+<tr>
+    <th>Statistic</th>
+    <th>Type</th>
+    <th>Meaning</th>
+</tr>
+
+<tr>
+    <td>overwhelmingFailure</td>
+    <td>Boolean</td>
+    <td>If this is true, then more than half of attempts made failed and the rest of the statistics are not trustworthy. As this function only counts successes towards the number of attempts, a safety measure is included that cancels the loop if the number of total attempts is more than twice than the number of desired successful attempts. If there is an overwhelming failure, either the cycle count is too low, or the current configuration of your problem is not feisibly solvable.</td>
+</tr>
+
+<tr>
+    <td>averageCycles</td>
+    <td>Number</td>
+    <td>The average number of cycles it took to find an answer</td>
+</tr>
+
+ <tr>
+    <td>averageActions</td>
+    <td>Number</td>
+    <td>The average number of actions returned</td>
+</tr>
+
+ <tr>
+    <td>averageTimeTotal</td>
+    <td>Number</td>
+    <td>The average amount of time per failed and successful aStarSearch in milliseconds</td>
+</tr>
+
+<tr>
+    <td>averageTimePerFailure</td>
+    <td>Number</td>
+    <td>The average amount of time per successful aStarSearch in milliseconds</td>
+</tr>
+
+<tr>
+    <td>averageTimePerFailure</td>
+    <td>Number</td>
+    <td>The average amount of time per successful aStarSearch in milliseconds</td>
+</tr>
+
+<tr>
+    <td>cycleRunoutProbability</td>
+    <td>Number 0-1 (Percentage when logged)</td>
+    <td>The average amount of time per failed aStarSearch in milliseconds</td>
+</tr>
+
+<tr>
+    <td>failureCount</td>
+    <td>Number</td>
+    <td>Total number of failed attempts</td>
+</tr>
+
+<tr>
+    <td>failedStates</td>
+    <td>Array<State></td>
+    <td>An array of all states that were not solved in the allowed number of cycles. If a cloneState function is provided, then these will be cloned from the original</td>
+</tr>
+</table>
+
 
 ## Example
 
@@ -522,9 +593,9 @@ Finally, the search must be executed with the [aStarSearch](#run-strips) functio
 var actionList = stripsInstance.aStarSearch(scrambledPuzzle,solvedPuzzle,50000,false,clonePuzzle(scrambledPuzzle));
 ```
 
-The stepLimit parameter should be adjusted to ensure that it is unlikely that it will run out of steps.
+The cycleLimit parameter should be adjusted to ensure that failure due to lack of cycles is unlikely. More information can be found under [Debugging And Optimization][#debugging-and-optimization].
 
-With a search being complete the final step is to parse the actions and use them wherever is nessisary.
+With a search being complete the final step is to parse the actions and use them wherever is nessisary. For this example the state will be directly logged in the console at each step of solving the puzzle. 
 
 ```js
 logPuzzle(scrambledPuzzle);
@@ -550,5 +621,102 @@ function logPuzzle(puzzle)
     console.log(str);
 }
 ```
+
+Here is an example of the output from this code:
+
+```
+1 7 8 
+4 3 5 
+0 2 6
+
+1 7 8 
+4 3 5 
+2 0 6 
+
+1 7 8 
+4 3 5 
+2 6 0 
+
+1 7 8 
+4 3 0 
+2 6 5 
+
+1 7 8 
+4 0 3 
+2 6 5
+
+1 0 8 
+4 7 3 
+2 6 5 
+
+1 8 0 
+4 7 3 
+2 6 5 
+
+1 8 3 
+4 7 0 
+2 6 5 
+
+1 8 3 
+4 7 5 
+2 6 0 
+
+1 8 3 
+4 7 5 
+2 0 6 
+
+1 8 3 
+4 0 5 
+2 7 6 
+
+1 0 3 
+4 8 5 
+2 7 6 
+
+0 1 3 
+4 8 5 
+2 7 6 
+
+4 1 3 
+0 8 5 
+2 7 6 
+
+4 1 3 
+2 8 5 
+0 7 6 
+
+4 1 3 
+2 8 5 
+7 0 6 
+
+4 1 3 
+2 0 5 
+7 8 6 
+
+4 1 3 
+0 2 5 
+7 8 6 
+
+0 1 3 
+4 2 5 
+7 8 6 
+
+1 0 3 
+4 2 5 
+7 8 6 
+
+1 2 3 
+4 0 5 
+7 8 6 
+
+1 2 3 
+4 5 0 
+7 8 6 
+
+1 2 3 
+4 5 6 
+7 8 0 
+```
+
 
 
