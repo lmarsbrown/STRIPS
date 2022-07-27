@@ -326,6 +326,72 @@ One function that the STRIPS instance has is the benchmark function. This functi
     <td>An array of all states that were not solved in the allowed number of cycles. If a cloneState function is provided, then these will be cloned from the original</td>
 </tr>
 </table>
+<br>
+
+The parameters of this function are similar to the parameters of the [aStarSearch](#run-strips) function but with a few key differences.
+
+
+<table>
+<tr>
+    <th>Parameter</th>
+    <th>Type</th>
+    <th>Purpose</th>
+</tr>
+
+<tr>
+    <td>attempts</td>
+    <td>Integer</td>
+    <td>This is the number of times it will run aStarSearch</td>
+</tr>
+
+<tr>
+    <td>getRandomState</td>
+    <td>Function</td>
+    <td>This is a function with no parameters that will return a unique randomly generated state to use as inital state</td>
+</tr>
+
+<tr>
+    <td>goalState</td>
+    <td>State</td>
+    <td>Same as aStarSearch</td>
+</tr>
+
+ <tr>
+    <td>cycleLimit</td>
+    <td>Integer</td>
+    <td>Same as aStarSearch</td>
+</tr>
+
+<tr>
+    <td>logResults</td>
+    <td>Boolean</td>
+    <td>Controls whether or not the results of the benchmark are logged to the console</td>
+</tr>
+
+ <tr>
+    <td>cloneState (Optional but recommended)</td>
+    <td>Function</td>
+    <td> A function with 1 State parameter that returns a State which is a clone of the parameter</td>
+</tr>   
+    
+<tr>
+    <td>maxExpectedCycles</td>
+    <td>Integer</td>
+    <td>Same as aStarSearch</td>
+</tr>  
+</table>
+<br>
+
+#### Finding the Ideal Cycle Limit
+
+The cycle limit parameter of the aStarSearch function is used to determine when a search has taken too long and should be terminated. This should ideally be at a number where it is extremely unlikely for cycles to run out, but if a state gets stuck the program will be terminated before too much time has passed. This limit can be determined using the benchmark function with the following proccess
+
+Before further testing, the starting point for the number of attempts and the cycle limit should be determined. Try starting with a benchmark of 10 cycles and raise the cycle limit to a point where the failure probability is low. Once failures are somewhat rare, raise the number of attempts until the amount of time taken per benchmark is as high as is tolerable. This is usually 1-4 seconds but could be higher for slower searches.
+
+Ones these values have been found, start raising the cycle limit until either the failure probability is zero, or the average failure time is longer than the time availible. This ensures that the program will be terminated in situations where it is taking to long, will succeed otherwise.
+
+If the the average failure time is unacceptable before the failure probability is acceptable, optimizations need to be made. One place to start is improving the Heuristic function. More information can be found [Here](#heuristic-distance-function)
+
 
 
 ## Example
@@ -593,7 +659,7 @@ Finally, the search must be executed with the [aStarSearch](#run-strips) functio
 var actionList = stripsInstance.aStarSearch(scrambledPuzzle,solvedPuzzle,50000,false,clonePuzzle(scrambledPuzzle));
 ```
 
-The cycleLimit parameter should be adjusted to ensure that failure due to lack of cycles is unlikely. More information can be found under [Debugging And Optimization][#debugging-and-optimization].
+The cycleLimit parameter should be adjusted to ensure that failure due to lack of cycles is unlikely. More information can be found under [Finding the Ideal Cycle Limit][#finding-the-ideal-cycle-limit].
 
 With a search being complete the final step is to parse the actions and use them wherever is necessary. For this example the state will be directly logged in the console at each step of solving the puzzle. 
 
