@@ -1,28 +1,28 @@
 # STRIPS
 
-This is an extended implementation of the Stanford Research Institute Problem Solver (STRIPS), an automated planning algorithim. STRIPS can be used to solve a wide variety of problems ranging from navigating a room to solving a slide puzzle. 
+This is an extended implementation of the Stanford Research Institute Problem Solver (STRIPS), an automated planning algorithm. STRIPS can be used to solve a wide variety of problems ranging from navigating a room to solving a slide puzzle. 
 
 ## Overview
 
-This is a general description of the way the STRIPS proccesses information and how to think in terms of STRIPS. If you are already familiar with this algorithm, feel free to skip this section. 
+This is a general description of the way the STRIPS processes information and how to think in terms of STRIPS. If you are already familiar with this algorithm, feel free to skip this section. 
 
 If you are writing a program to solve a problem, the first step is to convert the problem to a form that is understandable to a computer. Let's first look at how STRIPS describes problems. STRIPS describes problems in terms of states and actions. A state is a collection of all of the information relevant to a problem at a given step, and the actions are all of the things that can be done to modify said state.
 
-As an example, think of a slide puzzle. Aslide puzzle is a puzzle consisting of a grid of labeled squares with one empty space. You can slide the pieces neighboring the space into the space. The goal is to slide pieces around on a randomly aranged board to get all of the peces in order. In this case, the state is the arangment of pieces on the board, and the actions are the ways that you can slide pieces around on the board. 
+As an example, think of a slide puzzle. A slide puzzle is a puzzle consisting of a grid of labeled squares with one empty space. You can slide the pieces neighboring the space into the space. The goal is to slide pieces around on a randomly arranged board to get all of the pieces in order. In this case, the state is the arrangement of pieces on the board, and the actions are the ways that you can slide pieces around on the board. 
 
-The job of STRIPS is to take an initial state, a goal state, and a list of actions, and determine an effecient sequence of actions that will transform the initial state to the goal state. For example, you could provide STRIPS with an unsolved slide puzzle as an initial state, a solved puzzle as a goal state, and the ways that you can move the pieces as actions, and STRIPS would return all of the moves that need to be made to solve the puzzle.
+The job of STRIPS is to take an initial state, a goal state, and a list of actions, and determine an efficient sequence of actions that will transform the initial state to the goal state. For example, you could provide STRIPS with an unsolved slide puzzle as an initial state, a solved puzzle as a goal state, and the ways that you can move the pieces as actions, and STRIPS would return all of the moves that need to be made to solve the puzzle.
 
 ## Where Is STRIPS Applicable
 
-To make the best use of STRIPS, it is important to know where it is and where it isn't applicable. As described in the [Overview](#overview), STRIPS is used to determine the best set of actions to get from one state  to another. This means that your problem has to have a clear, easy to describe, and deterministic state. For example, chess would not be a good candidate for a STRIPS problem as the state changes with player moves which cannot easily be predicted. It also needs to have a goal state. STRIPS is not designed to optimize a cost function that doesnt have a minimum cost. This means that it cant be used for problems like the game [Snake](https://en.wikipedia.org/wiki/Snake_(video_game_genre)) where you have to move around collecting food indefinitely.
+To make the best use of STRIPS, it is important to know where it is and where it isn't applicable. As described in the [Overview](#overview), STRIPS is used to determine the best set of actions to get from one state  to another. This means that your problem has to have a clear, easy to describe, and deterministic state. For example, chess would not be a good candidate for a STRIPS problem as the state changes with player moves which cannot easily be predicted. It also needs to have a goal state. STRIPS is not designed to optimize a cost function that doesn't have a minimum cost. This means that it cant be used for problems like the game [Snake](https://en.wikipedia.org/wiki/Snake_(video_game_genre)) where you have to move around collecting food indefinitely.
 
-Even if a problem can technically be solved with STRIPS, that doesn't mean it can be solved in a useful amount of time. There are 2 primary considerations when trying to estimate the difficulty of solving a problem for STRIPS. The first consideration is the ability to tell if an action improves or worsens a state. This is dependent on the [Heuristic Function](TODO). If the distance to the goal doesnt continuously shrink as a state gets closer, STRIPS will have a hard time getting to the goal.
+Even if a problem can technically be solved with STRIPS, that doesn't mean it can be solved in a useful amount of time. There are 2 primary considerations when trying to estimate the difficulty of solving a problem for STRIPS. The first consideration is the ability to tell if an action improves or worsens a state. This is dependent on the [Heuristic Function](heuristic-distance-function). If the distance to the goal doesn't continuously shrink as a state gets closer, STRIPS will have a hard time getting to the goal.
 
-This is amplified by the second consideration which is the size of the state space. The "state space" is essentially all of the possible states connected together by actions. Since STRIPS works by pathfinding through this space, large spaces can lower performace. One big consideration is the number of possible actions per state. For example, if a state has 40 possible actions, and it takes a minimum of 5 steps for the heuristic distance function to change, then STRIPS will have to explore 40 to the power of 5 states which is over 100 million states. A combonantion of a suboptimal heuristic distance function and an overly vast state space can get out of hand quickly. 
+This is amplified by the second consideration which is the size of the state space. The "state space" is essentially all of the possible states connected together by actions. Since STRIPS works by pathfinding through this space, large spaces can lower performance. One big consideration is the number of possible actions per state. For example, if a state has 40 possible actions, and it takes a minimum of 5 steps for the heuristic distance function to change, then STRIPS will have to explore 40 to the power of 5 states which is over 100 million states. A combination of a sub-optimal heuristic distance function and an overly vast state space can get out of hand quickly. 
 
-STRIPS actually solves problems in a similar way to humans. It works by trying moves and following up on moves that bring it closer to the goal. **This means that you can get a good guess as to whether STRIPS can solve a problem, by asking if a human could solve the problem in a reasonable amount of time without prior knowlegde of the problem and without developing an algorithm or stratagy.**
+STRIPS actually solves problems in a similar way to humans. It works by trying moves and following up on moves that bring it closer to the goal. **This means that you can get a good guess as to whether STRIPS can solve a problem, by asking if a human could solve the problem in a reasonable amount of time without prior knowledge of the problem and without developing an algorithm or strategy.**
 
-One example of this is a rubiks cube. Since a rubiks cube can easily be represented digitally, and has a clear goal it seems like it should be a good candidate for solving with STRIPS. However, in practice, a rubiks cube more than a couple of steps away from being solved will take an unreasonable amount of time to solve using STRIPS. If you have ever tried to solve a rubiks cube without a clear stratagy, you have probably experienced something similar. The reason that it is difficult to solve a rubiks cube with these methods is that it is difficult to estimate how close the cube is to being solved until a couple moves before completion. It is very easy to make moves that appear to be improving the state of the cube that aren't actually useful. On top of this, the number of moves that can be made per steps is quite large ranging from 6 to 18 depending on which moves you allow. This means that for a scrambled cube, a massive space has to be explored before true progress can be detected making it extremely difficult for STRIPS or a guessing human to solve.
+One example of this is a Rubik's cube. Since a Rubik's Cube can easily be represented digitally, and has a clear goal it seems like it should be a good candidate for solving with STRIPS. However, in practice, a Rubik's Cube more than a couple of steps away from being solved will take an unreasonable amount of time to solve using STRIPS. If you have ever tried to solve a Rubik's Cube without a clear strategy, you have probably experienced something similar. The reason that it is difficult to solve a Rubik's Cube with these methods is that it is difficult to estimate how close the cube is to being solved until a couple moves before completion. It is very easy to make moves that appear to be improving the state of the cube that aren't actually useful. On top of this, the number of moves that can be made per steps is quite large ranging from 6 to 18 depending on which moves you allow. This means that for a scrambled cube, a massive space has to be explored before true progress can be detected making it extremely difficult for STRIPS or a guessing human to solve.
 
 
 
@@ -33,7 +33,7 @@ To run STRIPS you need to do the following:
 
 ### Create A State Template
 
-A state template is an object that contains 2 functions. The first function is called  "heuristicFunc" which is the heuristic distance estimation for A*. It must have 2 parameters that are both states, (state,goal) and it returns a number that gets smaller the closer the parameter "state" is to the parameter "goal". The second funciton is called "stateStringFunc". It has 1 parameter (state) and returns a string which is a unique itdentifier for the state. It must return different strings for different states and must return THE SAME string for 2 equivalent states. More information can be found on both of these functions below.  
+A state template is an object that contains 2 functions. The first function is called  "heuristicFunc" which is the heuristic distance estimation for A*. It must have 2 parameters that are both states, (state,goal) and it returns a number that gets smaller the closer the parameter "state" is to the parameter "goal". The second funciton is called "stateStringFunc". It has 1 parameter (state) and returns a string which is a unique identifier for the state. It must return different strings for different states and must return THE SAME string for 2 equivalent states. More information can be found on both of these functions below.  
 
 Example:
 
@@ -53,7 +53,7 @@ You must create objects describing the actions. Each action contains the followi
   <tr>
     <th>Attribute</th>
     <th>Type</th>
-    <th>Parmeters</th>
+    <th>Parameters</th>
     <th>Output</th>
     <th>Purpose</th>
   </tr>
@@ -70,7 +70,7 @@ You must create objects describing the actions. Each action contains the followi
     <td>Function</td>
     <td>(state:State)</td>
       <td><code>[Array, Array...]</code></td>
-    <td>This implementation allows you to provide parameters for your actions to avoid the possibility of having to add countless similar actions. The parameters are given as an array. This function should return the valid parameters for a specified state.  The function should return an array of arrays. Each element of this array is an array containg all valid values for its respective parameters. For example, if your action has 2 parameters and the valid values of the first parameter are 1 and 2, and the valid values of the second parameter are 1, 4, and 5, then you would provide the array <br> <code>[ [1, 2], [1, 4, 5] ]</code>. STRIPS will cycle through all of the possible combinations of these parameters and attempt to use them as seperate actions. If you do not wish to use parameters then this function should return an empty array. <br><br> NOTE: Not all combinations of these parameters have to be valid as the validation function is still applied to all of generated actions</td>
+    <td>This implementation allows you to provide parameters for your actions to avoid the possibility of having to add countless similar actions. The parameters are given as an array. This function should return the valid parameters for a specified state.  The function should return an array of arrays. Each element of this array is an array containing all valid values for its respective parameters. For example, if your action has 2 parameters and the valid values of the first parameter are 1 and 2, and the valid values of the second parameter are 1, 4, and 5, then you would provide the array <br> <code>[ [1, 2], [1, 4, 5] ]</code>. STRIPS will cycle through all of the possible combinations of these parameters and attempt to use them as separate actions. If you do not wish to use parameters then this function should return an empty array. <br><br> NOTE: Not all combinations of these parameters have to be valid as the validation function is still applied to all of generated actions</td>
     </tr>
     
     
@@ -88,7 +88,7 @@ You must create objects describing the actions. Each action contains the followi
     <td>Function</td>
     <td>(state:State, params:Array)</td>
       <td>Boolean</td>
-    <td>This function is similar to the execution function except instead of returning a modified copy of the state it returns a boolean that is true if the action can be performed and false if it cannot be performed. This function should NOT modifiy the state.</td>
+    <td>This function is similar to the execution function except instead of returning a modified copy of the state it returns a boolean that is true if the action can be performed and false if it cannot be performed. This function should NOT modify the state.</td>
   </tr>
     
     
@@ -149,7 +149,7 @@ var rotateFaceAction = {
 ```
 <br>  
 
-### Create the inital and goal states
+### Create the initial and goal states
 
 The way that you create your states is mostly up to you as long as you create functions for the state. Here is an example of creating some states:
 
@@ -187,7 +187,7 @@ STRIPS is run using the aStarSearch function. The parameters of this function ar
 <tr>
     <td>initialState</td>
     <td>State</td>
-    <td>This is the inital state</td>
+    <td>This is the initial state</td>
 </tr>
 
 <tr>
@@ -259,11 +259,11 @@ let interval = setInterval(()=>{
 
 ### Debugging And Optimization
 
-Once you have implemented STRIPS it is sometimes nessisary to fix bugs and optimize your program to get it to run efficiently. 
+Once you have implemented STRIPS it is sometimes necessary to fix bugs and optimize your program to get it to run efficiently. 
 
 #### Benchmark Function
 
-One function that the STRIPS instance has is the benchmark function. This function runs aStarSearch a spesified number of times and then reports back various statisics in the form of a object and optionally logs those statisics to the console. These are the statisics that are returned:
+One function that the STRIPS instance has is the benchmark function. This function runs aStarSearch a specified number of times and then reports back various statistics in the form of a object and optionally logs those statistics to the console. These are the statistics that are returned:
 
 <table>
 <tr>
@@ -275,7 +275,7 @@ One function that the STRIPS instance has is the benchmark function. This functi
 <tr>
     <td>overwhelmingFailure</td>
     <td>Boolean</td>
-    <td>If this is true, then more than half of attempts made failed and the rest of the statistics are not trustworthy. As this function only counts successes towards the number of attempts, a safety measure is included that cancels the loop if the number of total attempts is more than twice than the number of desired successful attempts. If there is an overwhelming failure, either the cycle count is too low, or the current configuration of your problem is not feisibly solvable.</td>
+    <td>If this is true, then more than half of attempts made failed and the rest of the statistics are not trustworthy. As this function only counts successes towards the number of attempts, a safety measure is included that cancels the loop if the number of total attempts is more than twice than the number of desired successful attempts. If there is an overwhelming failure, either the cycle count is too low, or the current configuration of your problem is not feasibly solvable.</td>
 </tr>
 
 <tr>
@@ -330,14 +330,14 @@ One function that the STRIPS instance has is the benchmark function. This functi
 
 ## Example
 
-Here is an example of the proccess of implementing a program to solve a slide puzzle.
+Here is an example of the process of implementing a program to solve a slide puzzle.
 
 
 ### The State
 
 The first step in implementing STRIPS is to figure out how you are going to represent the state. You can do this is whatever way you want to as long as it is contained in an object. Consider that you will have to write a functions to copy this state and convert it to a string.
 
-The information that the slide puzzle state has to contain is the arangement of the pieces. This can be described by an array with each location in the array representing a location on the board and each entry a number describing the number of the piece at its respective location. Zero can represent the empty space. A solved state would look like:
+The information that the slide puzzle state has to contain is the arrangement of the pieces. This can be described by an array with each location in the array representing a location on the board and each entry a number describing the number of the piece at its respective location. Zero can represent the empty space. A solved state would look like:
 
 
 ```js
@@ -353,7 +353,7 @@ var solvedPuzzle =
 ```
 <br>
 
-It is also reccomenended although techincally not required that you write a function to make a deep copy of your state. A function to copy this state is shown below.
+It is also recommended although technically not required that you write a function to make a deep copy of your state. A function to copy this state is shown below.
 
 ```js
 function clonePuzzle(puzzle)
@@ -371,7 +371,7 @@ function clonePuzzle(puzzle)
 
 ### Action Execution
 
-Next, the action functions must be implemented. For any given state there is a maximum of 4 possible moves. The pieces from either the top, left, bottom or right of the empty space can be moved to fill the empty space, effectivly swapping the empty space with the piece that you are moving to. Since there are only 4 possible moves, the direction to move can be represented as an int from 0-3. The steps for executing a movement are listed below.
+Next, the action functions must be implemented. For any given state there is a maximum of 4 possible moves. The pieces from either the top, left, bottom or right of the empty space can be moved to fill the empty space, effectively swapping the empty space with the piece that you are moving to. Since there are only 4 possible moves, the direction to move can be represented as an int from 0-3. The steps for executing a movement are listed below.
 
 1. Copy the input state
 2. Find the location of the empty space
@@ -437,7 +437,7 @@ function findZeroLoc(puzzle)
 
 ### Action Verification
 
-A funciton also needs to be created determining if an action is valid. An action is invalid if the piece that it is trying to move into the zero position is outside of the puzzle. This occurs when the zero position is on the edge of the puzzle and the direction that the piece is being moved is the towards the edge of the puzzle. A function checking if a move is invalid is shown below
+A function also needs to be created determining if an action is valid. An action is invalid if the piece that it is trying to move into the zero position is outside of the puzzle. This occurs when the zero position is on the edge of the puzzle and the direction that the piece is being moved is the towards the edge of the puzzle. A function checking if a move is invalid is shown below
 
 ```js
 function isMoveAllowed(puzzle,direction)
@@ -460,7 +460,7 @@ With the action functions created, they must be compiled along with some other i
 - executeFunction: A function implementing movePiece that uses the params array
 - validFunction: A function implementing isMoveAllowed that uses the params array.
 - costFunction: A function that always returns 1 because the cost of an action does not change based on the state or the parameters in this case
-- getInputsFunc: One parameter is needed that provides the direction to move. The valid values for this parameter are the 4 directions 0,1,2, and 3. This is true no indepentent of the state meaning that this function should always return the array ```[[0,1,2,3]]```
+- getInputsFunc: One parameter is needed that provides the direction to move. The valid values for this parameter are the 4 directions 0,1,2, and 3. This is true independent of the state meaning that this function should always return the array ```[[0,1,2,3]]```
 
 The code for this action is shown below
 
@@ -516,13 +516,13 @@ function puzzleToString(puzzle)
 
 ### Heuristic Distance Function
 
-The second state template function is the heuristic distance function. This function has 2 inputs, a current state input and a goal state input, and it estimates how many steps it will take to get from the current state to the goal state. The main feature that this function should have is that the output goes down the easier it is to get the current state to the goal state. You can think if this as a "hot or cold" function that tell STRIPS if its getting closer. This function is extremely important to the effectiveness of the algorithim. A good heuristic can mean the difference between STRIPS taking taking a fraction of a second rather than minutes to solve a state. 
+The second state template function is the heuristic distance function. This function has 2 inputs, a current state input and a goal state input, and it estimates how many steps it will take to get from the current state to the goal state. The main feature that this function should have is that the output goes down the easier it is to get the current state to the goal state. You can think if this as a "hot or cold" function that tell STRIPS if its getting closer. This function is extremely important to the effectiveness of the algorithm. A good heuristic can mean the difference between STRIPS taking taking a fraction of a second rather than minutes to solve a state. 
 
-When writing a heuristic you should avoid directly comparing states. Directly comparing different aspects of the 2 states will likely result in a bad heuristic function as the distance will only go down when algorithm stumbles across a correct part of a state. That means that STRIPS will have to explore a massive amount of nodes in between successes. A heuristic like this for this problem would be a function that checks each entry of the current and goal state and subtracts 1 from the cost if the 2 values are the same. This would be a bad heuristic because as stated above it doesnt continuously tell the program whether or not its getting closer to the goal, it only gives information when it happens to put something in the correct position.
+When writing a heuristic you should avoid directly comparing states. Directly comparing different aspects of the 2 states will likely result in a bad heuristic function as the distance will only go down when algorithm stumbles across a correct part of a state. That means that STRIPS will have to explore a massive amount of nodes in between successes. A heuristic like this for this problem would be a function that checks each entry of the current and goal state and subtracts 1 from the cost if the 2 values are the same. This would be a bad heuristic because as stated above it doesn't continuously tell the program whether or not its getting closer to the goal, it only gives information when it happens to put something in the correct position.
 
-You should also avoid steep local minima. A heuristic that causes large increases in cost for moves that have minimal impact will have poor performace because it can cause perfectly good moves to be ignored while encouraging bad moves that don't dissrupt previous progress. This is part of direct comparison creates bad heuristics; the cost drops abruptly when an element falls into place and rises abrubtly when it is disturbed. 
+You should also avoid steep local minima. A heuristic that causes large increases in cost for moves that have minimal impact will have poor performance because it can cause perfectly good moves to be ignored while encouraging bad moves that don't disrupt previous progress. This is part of direct comparison creates bad heuristics; the cost drops abruptly when an element falls into place and rises abruptly when it is disturbed. 
 
-One method for creating a heuristic is to cycle through each element in the state and estimate how many moves it would take to get only that element to the correct state and then repeat that for every element summing the distances. In this case that means summing the distances from each piece in the current state to its respective piece in the goal state. This doesn't work, or even nessisarily make sense for all problems but it is a useful concept for a lot of problems
+One method for creating a heuristic is to cycle through each element in the state and estimate how many moves it would take to get only that element to the correct state and then repeat that for every element summing the distances. In this case that means summing the distances from each piece in the current state to its respective piece in the goal state. This doesn't work, or even necessarily make sense for all problems but it is a useful concept for a lot of problems
 
 Another method for creating a heuristic is to try and solve the problem yourself and see how you go about it. Often, you will automatically use a process similar to STRIPS of estimating how good a state is and then choosing states based on how good they are. If you can figure out how you are determining the quality of a state then you can often use that as a STRIPS heuristic. 
 
@@ -575,7 +575,7 @@ var stateTemplate = {
 
 ### Final STRIPS Implementation
 
-Now that all of the relevant functions have been implemented, the final step is to pass it all to STRIPS. First a STRIPS instace must be created with the the stateTemplate object in the constructor.
+Now that all of the relevant functions have been implemented, the final step is to pass it all to STRIPS. First a STRIPS instance must be created with the the stateTemplate object in the constructor.
 
 ```js
 var stripsInstance = new STRIPS(stateTemplate);
@@ -595,7 +595,7 @@ var actionList = stripsInstance.aStarSearch(scrambledPuzzle,solvedPuzzle,50000,f
 
 The cycleLimit parameter should be adjusted to ensure that failure due to lack of cycles is unlikely. More information can be found under [Debugging And Optimization][#debugging-and-optimization].
 
-With a search being complete the final step is to parse the actions and use them wherever is nessisary. For this example the state will be directly logged in the console at each step of solving the puzzle. 
+With a search being complete the final step is to parse the actions and use them wherever is necessary. For this example the state will be directly logged in the console at each step of solving the puzzle. 
 
 ```js
 logPuzzle(scrambledPuzzle);
