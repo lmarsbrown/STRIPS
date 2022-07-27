@@ -390,7 +390,7 @@ Before further testing, the starting point for the number of attempts and the cy
 
 Ones these values have been found, start raising the cycle limit until either the failure probability is zero, or the average failure time is longer than the time availible. This ensures that the program will be terminated in situations where it is taking to long, will succeed otherwise.
 
-If the the average failure time is unacceptable before the failure probability is acceptable, optimizations need to be made. One place to start is improving the Heuristic function. More information can be found [Here](#heuristic-distance-function)
+If the the average failure time is unacceptable before the failure probability is acceptable, optimizations need to be made. One place to start is improving the Heuristic function. More information can be found under the [Heuristic Distance Function](#heuristic-distance-function) section.
 
 
 
