@@ -445,4 +445,6 @@ function puzzleToString(puzzle)
 
 ### Heuristic Distance Function
 
-The second state template function is the heuristic distance function. 
+The second state template function is the heuristic distance function. This function has 2 inputs, a current state input and a goal state input, and it estimates how many steps it will take to get from the current state to the goal state. The main feature that this function should have is that the output goes down the easier it is to get the current state to the goal state. Here are some guidelines for writing a good heuristic distance function:
+
+- Avoid directly comparing states. Directly comparing different aspects of the 2 states will likely result in a bad heuristic function as the distance will only go down when algorithm stumbles across a correct part of a state. That means that STRIPS will have to explore a massive amount of nodes in between successes.                                                          
