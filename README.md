@@ -445,6 +445,110 @@ function puzzleToString(puzzle)
 
 ### Heuristic Distance Function
 
-The second state template function is the heuristic distance function. This function has 2 inputs, a current state input and a goal state input, and it estimates how many steps it will take to get from the current state to the goal state. The main feature that this function should have is that the output goes down the easier it is to get the current state to the goal state. Here are some guidelines for writing a good heuristic distance function:
+The second state template function is the heuristic distance function. This function has 2 inputs, a current state input and a goal state input, and it estimates how many steps it will take to get from the current state to the goal state. The main feature that this function should have is that the output goes down the easier it is to get the current state to the goal state. You can think if this as a "hot or cold" function that tell STRIPS if its getting closer. This function is extremely important to the effectiveness of the algorithim. A good heuristic can mean the difference between STRIPS taking taking a fraction of a second rather than minutes to solve a state. 
 
-- Avoid directly comparing states. Directly comparing different aspects of the 2 states will likely result in a bad heuristic function as the distance will only go down when algorithm stumbles across a correct part of a state. That means that STRIPS will have to explore a massive amount of nodes in between successes.                                                          
+When writing a heuristic you should avoid directly comparing states. Directly comparing different aspects of the 2 states will likely result in a bad heuristic function as the distance will only go down when algorithm stumbles across a correct part of a state. That means that STRIPS will have to explore a massive amount of nodes in between successes. A heuristic like this for this problem would be a function that checks each entry of the current and goal state and subtracts 1 from the cost if the 2 values are the same. This would be a bad heuristic because as stated above it doesnt continuously tell the program whether or not its getting closer to the goal, it only gives information when it happens to put something in the correct position.
+
+You should also avoid steep local minima. A heuristic that causes large increases in cost for moves that have minimal impact will have poor performace because it can cause perfectly good moves to be ignored while encouraging bad moves that don't dissrupt previous progress. This is part of direct comparison creates bad heuristics; the cost drops abruptly when an element falls into place and rises abrubtly when it is disturbed. 
+
+One method for creating a heuristic is to cycle through each element in the state and estimate how many moves it would take to get only that element to the correct state and then repeat that for every element summing the distances. In this case that means summing the distances from each piece in the current state to its respective piece in the goal state. This doesn't work, or even nessisarily make sense for all problems but it is a useful concept for a lot of problems
+
+Another method for creating a heuristic is to try and solve the problem yourself and see how you go about it. Often, you will automatically use a process similar to STRIPS of estimating how good a state is and then choosing states based on how good they are. If you can figure out how you are determining the quality of a state then you can often use that as a STRIPS heuristic. 
+
+Keep in mind that for hard problems, you may have to tweak this function to get a heuristic to perform well.
+
+For this puzzle a simple heuristic is to take the Manhattan distance between each element except for the empty space and its respective piece in the goal goal state. Code for this is shown below
+
+```js
+function heuristicCost(puzzle,goal)
+{
+    let cost = 0;
+    for(let a = 0; a < 9; a++)
+    {
+        let x = a%3;
+        let y = Math.floor(a/3);
+        let val = puzzle.board[a];
+
+        let goalIndex = 0;
+        for(let b = 0; true; b++)
+        {
+            if(goal.board[b] == val)
+            {
+                goalIndex = b;
+                break;
+            }
+        }
+        let gX = goalIndex%3;
+        let gY = Math.floor(goalIndex/3);
+        if(val != 0)
+        {
+            cost+= Math.abs(x-gX)+Math.abs(y-gY);
+        }
+    }
+    return cost;
+}
+```
+<br>
+
+### State Template
+
+The state string function and the heuristic need to be added to a [State Template Object](#create-a-state-template). A state template for these functions is shown below
+
+```js
+var stateTemplate = {
+    heuristicFunc: heuristicCost,
+    stateStringFunc: puzzleToString
+};
+```
+<br>
+
+### Final STRIPS Implementation
+
+Now that all of the relevant functions have been implemented, the final step is to pass it all to STRIPS. First a STRIPS instace must be created with the the stateTemplate object in the constructor.
+
+```js
+var stripsInstance = new STRIPS(stateTemplate);
+```
+
+Next, the action is added to the instance
+
+```js
+stripsInstance.addAction(movePieceAction);
+```
+
+Finally, the search must be executed with the [aStarSearch](#run-strips) function.
+
+```js
+var actionList = stripsInstance.aStarSearch(scrambledPuzzle,solvedPuzzle,50000,false,clonePuzzle(scrambledPuzzle));
+```
+
+The stepLimit parameter should be adjusted to ensure that it is unlikely that it will run out of steps.
+
+With a search being complete the final step is to parse the actions and use them wherever is nessisary.
+
+```js
+logPuzzle(scrambledPuzzle);
+for(let i = 0; i < actionList.length; i++)
+{
+    let action = actionList[i].params[0];
+    scrambledPuzzle = movePiece(scrambledPuzzle,action);
+    logPuzzle(scrambledPuzzle);
+}
+function logPuzzle(puzzle)
+{
+    let str = "";
+    for(let y = 0; y < 3; y++)
+    {
+        let line = "";
+        for(let x = 0; x < 3; x++)
+        {
+            line += puzzle.board[x+3*y]+" ";
+        }
+        line+="\n";
+        str+=line;
+    }
+    console.log(str);
+}
+```
+
+
