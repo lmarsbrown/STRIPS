@@ -1,3 +1,11 @@
+function incCount(func)
+{
+    if(func.count == undefined)
+    {
+        func.count = 0;
+    }
+    func.count++;
+}
  
 
 class OrderedList
@@ -16,6 +24,7 @@ class OrderedList
         let ele = this.array.pop();
         return ele;
     }
+
     addElement(element)
     {
         //Elements are added by performing a binary search and then inserting the element at the correct location
@@ -84,6 +93,149 @@ class OrderedList
 
 
 
+//Unused
+//Might be memory leaky but if that is patched this could be a viable alternative to semi sorted
+class SortedQueue
+{
+    constructor(maxExpected)
+    {
+        this.openStatesSearch = {};
+        this.openStatesList = [];
+        this.spliceCount = 0;
+        this.maxExpected = maxExpected;
+        this.worstCost = Infinity;
+    }
+    getBestElement()
+    {
+        let ele = this.openStatesList.pop();
+        delete this.openStatesSearch[ele.str];
+        return ele;
+    }
+
+    addElement(element)
+    {
+        if(element.fCost > this.worstCost)
+        {
+            return;
+        }
+        this.openStatesSearch[element.str] = element;
+        if (this.openStatesList.length == 0)
+        {
+            this.openStatesList.push(element);
+            return;
+        }
+        let min = 0;
+        let max = this.openStatesList.length - 1;
+        let cost = element.fCost;
+        while (true)
+        {
+            let newExtreme = Math.ceil((min + max) / 2);
+            if (max - min <= 0)
+            {
+                let newCost = this.openStatesList[max].fCost;
+                if (cost < newCost)
+                {
+                    this.openStatesList.splice(newExtreme + 1, 0, element);
+                    this.worstCost = this.openStatesList[0];
+                    while(this.openStatesList.length>this.maxExpected)
+                    {
+                        delete this.openStatesSearch[this.openStatesList.shift().str];
+                    }
+                    return;
+                }
+                else if (cost > newCost)
+                {
+                    this.openStatesList.splice(newExtreme, 0, element);
+                    this.worstCost = this.openStatesList[0];
+                    while(this.openStatesList.length>this.maxExpected)
+                    {
+                        delete this.openStatesSearch[this.openStatesList.shift().str];
+                    }
+                    return;
+                }
+            }
+            let newCost = this.openStatesList[newExtreme].fCost;
+            if (cost > newCost)
+            {
+                max = newExtreme - 1;
+            }
+            else if (cost < newCost)
+            {
+                min = newExtreme + 1;
+            }
+            else if (cost == newCost)
+            {
+                this.openStatesList.splice(newExtreme, 0, element);
+                this.worstCost = this.openStatesList[0];
+                this.spliceCount++;
+                while(this.openStatesList.length>this.maxExpected)
+                {
+                    delete this.openStatesSearch[this.openStatesList.shift().str];
+                }
+                return;
+            }
+        }
+    }
+    
+    getElementByStr(str)
+    {
+        return this.openStatesSearch[str];
+    }
+}
+
+
+//Unused
+//Example of what happens if you try to manually search the list for the best element
+//Large state spaces are VERY slow with this
+class UnsortedQueue
+{
+    constructor()
+    {
+        this.openStatesSearch = {};
+    }
+    getBestElement()
+    {
+        let bestCost = Infinity;
+        let bestIndex = 0;
+        for(let i in this.openStatesSearch)
+        {
+            let cost = this.openStatesSearch[i].fCost;
+            if(cost<bestCost)
+            {
+                bestCost = cost;
+                bestIndex = i;
+            }
+        }
+        let ele = this.openStatesSearch[bestIndex];
+        delete this.openStatesSearch[bestIndex];
+        return ele;
+    }
+    addElement(element)
+    {
+        this.openStatesSearch[element.str] = element;
+    }
+    getElementByStr(str)
+    {
+        return this.openStatesSearch[str];
+    }
+}
+
+
+
+/*
+This is what is used to retrieve the best element
+
+It works by splitting up the data into 2 lists: a good list, and a bad list
+The good list length is 2xsqrt of the the total length
+
+New entries are sorted into the good or bad list based on whether they are better than the worst element in the good list
+
+If the good list is empty or twice the length that it is supposed to be, the lists are resorted and the boundry value is reset
+
+During a resort, if the total length is greater than the max expected length, the extra items are removed
+
+This can be sped up by using js sort to remove excess elements rather than the OrderedList which uses splice
+*/
 
 class SemiSortedQueue
 {
@@ -100,10 +252,10 @@ class SemiSortedQueue
         this.goodLength = 0;
         this.goodMaxLength = 50;
 
-        this.goodThreshold = 10;
+        this.goodThreshold = 20;
         this.sortedMode = false;
 
-        this.maxExpectedLength = maxExpectedLength;;
+        this.maxExpectedLength = maxExpectedLength;
 
         this.boundryCost = Infinity;
         this.worstCost = Infinity;
@@ -111,6 +263,16 @@ class SemiSortedQueue
     }
     getBestElement()
     {
+
+        if(this.goodLength+this.badLength<this.goodThreshold)
+        {
+            this.switchSortedMode(false);
+        }
+        else
+        {
+            this.switchSortedMode(true);
+        }
+        
         if(this.goodLength <= 0)
         {
             this.resort();
@@ -245,6 +407,7 @@ class SemiSortedQueue
 
     resort()
     {
+
         if(this.goodLength != 0)
         {
 
@@ -378,8 +541,6 @@ class SemiSortedQueue
         return this.openStatesSearch[str];
     }
 }
-
-
 class STRIPS
 {
     constructor(stateTemplate)
@@ -464,10 +625,11 @@ class STRIPS
             //Current action
             let a = this.actions[actionIndex];
 
+            //Array of possible actions
+            let inputs = a.getInputsFunc(state);
+
             //Array that contains the indices of the inputs that are currently being tried
             let paramIndexArray = [];
-
-            let inputs = a.getInputsFunc(state);
             for(let i in inputs)
             {
                 paramIndexArray.push(0);
@@ -492,7 +654,7 @@ class STRIPS
 
                 //Increments indices
 
-                //And index overflows past the total number of params it is reset to zero and the next index is incremented
+                //If index overflows past the total number of params it is reset to zero and the next index is incremented
                 let carry = true;
                 let i = 0;
                 while(carry)
@@ -531,13 +693,20 @@ class STRIPS
         return actions;
     }
 
-    aStarSearch(initialState,goalState,stepLimit,suppressErrors=false,changableInitialState,maxExpectedCycles)
+    aStarSearch(initialState,goalState,cycleLimit,suppressErrors=false,changableInitialState,maxExpectedCycles)
     {
         //The node at the end of the path
         let finalNode;
 
+        //If maxExpectedCycles isn't passed in it defaults to cycleLimit
+        if(maxExpectedCycles ==undefined)
+        {
+            maxExpectedCycles = cycleLimit;
+        }
+
         //States where the cost has been calculated have not been fully explored yet
         let openStates = new SemiSortedQueue(maxExpectedCycles);
+        
         //States that have been fully explored and should not be be backtracked onto
         let closedStates = {};
 
@@ -556,7 +725,7 @@ class STRIPS
             iState = JSON.parse(JSON.stringify(initialState));
         }
 
-        //Costs
+        //Inital costs
         iState.gCost = 0;
         iState.hCost = this.heuristic(iState,goalState);
         iState.fCost = iState.gCost+iState.hCost;
@@ -564,6 +733,7 @@ class STRIPS
         //String representing the initial state
         iState.str = this.getStateString(iState);
 
+        //Checks if the state is alread solved
         if(iState.str == goalStr)
         {
             console.log("State Already Solved")
@@ -576,20 +746,17 @@ class STRIPS
         //Adds the initial state to the open states list
         openStates.addElement(iState);
 
+
         let isAtGoal = false;
         let counter = 0;
 
-        while(!isAtGoal&&counter<stepLimit)
+        while(!isAtGoal&&counter<cycleLimit)
         {
-            if(counter>stepLimit-10&&!suppressErrors)
-            {
-                debugger;
-            }
             //The open state with the lowest cost
             let bestState = openStates.getBestElement();
 
             //As it is being explored, the best state string is added to closed states to avoid backtracking
-            let stateClosed = {action: bestState.action,parent:bestState.parent}
+            let stateClosed = {action: bestState.action,parent:bestState.parent};
             closedStates[bestState.str]=stateClosed;
 
 
@@ -609,29 +776,27 @@ class STRIPS
                     //If it is not backtracking, relevant data is updated and it is added to open states
 
                     //G cost is the cost of the previous state plus the cost of the action
-                    newState.gCost = bestState.gCost+this.actions[a[0]].costFunc(newState,a[1]);
+                    let addedGCost = this.actions[a[0]].costFunc(newState,a[1]);
+                    newState.gCost = bestState.gCost+addedGCost;
                     newState.hCost = this.heuristic(newState,goalState);
                     newState.fCost = newState.gCost+newState.hCost;
 
                     newState.action = a;
                     newState.parent = stateClosed;
 
-                    // //The list of actions for this state is the list of actions for the previous state plus latest action
-                    // newState.actions = JSON.parse(JSON.stringify(bestState.actions));
-                    // newState.actions.push(a);
-
-                    
-
                     //Adds the current node to the open nodes list if there is not already a more efficient node there
-                    if(openStates.getElementByStr(newState.str) == undefined)
+                    if(addedGCost != Infinity)
                     {
-                        openStates.addElement(newState);
-                    }
-                    else
-                    {
-                        if(newState.fCost < openStates.getElementByStr(newState.str).fCost)
+                        if(openStates.getElementByStr(newState.str) == undefined)
                         {
                             openStates.addElement(newState);
+                        }
+                        else
+                        {
+                            if(newState.fCost < openStates.getElementByStr(newState.str).fCost)
+                            {
+                                openStates.addElement(newState);
+                            }
                         }
                     }
                 }
@@ -646,7 +811,6 @@ class STRIPS
             }
 
             counter++;
-            //debugger;
         }
 
 
@@ -678,14 +842,13 @@ class STRIPS
                 }
             }
     
+            //Flips the inverted list of actions
             let actions = [];
             for(let i = actionsInverted.length-1; i >= 0; i--)
             {
                 actions.push(actionsInverted[i]);
             }
-    
-    
-            //console.log(counter);
+            
             this.cycles = counter;
             return actions;
         }
@@ -696,6 +859,125 @@ class STRIPS
                 console.error("Error: Path was not found within the allowed number of steps")
             }
         }
+    }
+
+    benchmark(attempts,getRandomState,goalState,cycleLimit,logResults,cloneState,maxExpectedCycles)
+    {
+        //Statistics vars
+        let totalCycles = 0;
+        let totalActions = 0;
+        let totalFailures = 0;
+        let trueTotalAttempts = 0;
+        let doCloneState = cloneState != undefined;
+
+        let successTime = 0;
+        let failureTime = 0;
+
+        let failedStates = [];
+
+        for(let i = 0; i < attempts; i++)
+        {
+            //Actual number of total attemps (success+fail)
+            trueTotalAttempts++;
+
+            //Gets a random state
+            let randState = getRandomState();
+
+            //Gets a cloned copy of the state if the cloneState function is provided
+            let clonedState = undefined;
+            if(doCloneState)
+            {
+                if(doCloneState)
+                {
+                    clonedState = cloneState(randState);
+                }
+            }
+
+
+            //Executes aStarSearch while timed
+            let startTime;
+            let endTime;
+
+            startTime = performance.now();
+            let acts = this.aStarSearch(randState,goalState,cycleLimit,true,clonedState,maxExpectedCycles);
+            endTime = performance.now();
+
+            //If acts is undefined then that means that aStarSearch ran out of cycles
+            if(acts == undefined)
+            {
+                //In the case of a failure deincrement i discarding the run
+                i--;
+
+                //Add to the failure count and time
+                totalFailures++;
+                failureTime+=endTime-startTime;
+
+                //Add the state to the failed states list
+                if(doCloneState)
+                {
+                    failedStates.push(cloneState(randState));
+                }
+                else
+                {
+                    failedStates.push(randState);
+                }
+
+                //If the number of total attempts is more than twice the allowed attemps then the loop is killed to prevent a practically infinite loop
+                if(trueTotalAttempts>attempts*2)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                //If the search succeeds the actions cycles and time are added
+                totalActions += acts.length;
+                totalCycles+=this.cycles;
+                successTime+=endTime-startTime;
+            }
+        }
+
+        //Calculates average failure time and sets the value to "No Failures" if there are no failures
+        let avFailTime = failureTime/totalFailures;
+        if(totalFailures == 0)
+        {
+            avFailTime = "No Failures";
+        }
+        //Create output object with the statistics
+        let output = 
+        {
+            overwhelmingFailure:trueTotalAttempts>attempts*2,
+            averageCycles: totalCycles/attempts,
+            averageActions:totalActions/attempts,
+            averageTimeTotal:(successTime+failureTime)/trueTotalAttempts,
+            averageTimePerSuccess:successTime/attempts,
+            averageTimePerFailure:avFailTime,
+            cycleRunoutProbability:totalFailures/trueTotalAttempts,
+            failureCount:totalFailures,
+            failedStates:failedStates
+        }
+
+        //Log results
+        if(logResults)
+        {
+            console.log("-------- Benchmark Results --------");
+            console.log("\n");
+            console.log("Overwhelming Failure: ", output.overwhelmingFailure);
+            console.log("\n");
+            console.log("Average Number of Cycles:  ", output.averageCycles);
+            console.log("Average Number of Actions: ", output.averageActions);
+            console.log("\n");
+            console.log("Average Time Per Attempt (ms):            ", output.averageTimeTotal);
+            console.log("Average Time Per Successful Attempt (ms): ", output.averageTimePerSuccess);
+            console.log("Average Time Per Failed Attempt (ms):     ", output.averageTimePerFailure);
+            console.log("\n");
+            console.log("Probability of Exceeding Max Cycles: ", output.cycleRunoutProbability*100+"%");
+            console.log("Number Of Failed Attempts: ", totalFailures);
+            console.log("-----------------------------------");
+            console.log("\n\n");
+        }
+
+        return output;
     }
     
 }
