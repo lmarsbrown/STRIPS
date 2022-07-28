@@ -505,7 +505,7 @@ class SemiSortedQueue
 
                     if(candidates.array.length == this.goodMaxLength)
                     {
-                        this.boundryCost = cost;
+                        this.boundryCost = -candidates.array[this.goodMaxLength-1][0];
                     }
                 }
                 else if(cost<this.boundryCost)
