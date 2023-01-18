@@ -659,7 +659,7 @@ Finally, the search must be executed with the [aStarSearch](#run-strips) functio
 var actionList = stripsInstance.aStarSearch(scrambledPuzzle,solvedPuzzle,50000,false,clonePuzzle(scrambledPuzzle));
 ```
 
-The cycleLimit parameter should be adjusted to ensure that failure due to lack of cycles is unlikely. More information can be found under [Finding the Ideal Cycle Limit][#finding-the-ideal-cycle-limit].
+The cycleLimit parameter should be adjusted to ensure that failure due to lack of cycles is unlikely. More information can be found under [Finding the Ideal Cycle Limit](#finding-the-ideal-cycle-limit).
 
 With a search being complete the final step is to parse the actions and use them wherever is necessary. For this example the state will be directly logged in the console at each step of solving the puzzle. 
 
