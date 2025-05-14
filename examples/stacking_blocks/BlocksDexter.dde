@@ -4,6 +4,9 @@ along with the special "blocksDexter.js" file (instead of blocks.js) so that it 
 in the web version of DDE: DDE4. 
 https://cfry.github.io/dde4/dde/
 
+NOTE THAT IT DOES NOT DISPLAY THE BLOCKS! 
+It only displays the motion of the arm which would re-arrange the blocks.
+
 */
 
 
@@ -1483,7 +1486,7 @@ function heuristicScore(state, goal)
 
         if(!info.correct&&!info.foundation&&!info.lastCorrect)
         {
-            score-=8*((state.items.length-info.equivalent.towerHeight)*info.burriedBy)/(state.items.length**2)
+            score-=8*((state.items.length-info.equivalent.towerHeight)*info.burriedBy)/Math.pow(2, state.items.length)
         }
         if(!info.correct&&!info.foundation&&!info.lastCorrect&&info.block.above!=undefined)
         {
@@ -1876,5 +1879,4 @@ function cloneArray(arr)
     }
     return out;
 }
-
 
