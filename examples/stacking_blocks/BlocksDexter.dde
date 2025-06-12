@@ -1531,16 +1531,32 @@ let initialState = {table:table1,items:[table1]};
 addOrderedStack(initialState,cloneArray(towerOrder));
 
 //display the scene
-function makeBox(tray, height, number) {
-	const box_size = 0.2
-    
+function makeSimBox(tray, height, number) {
+	const BOX_SIZE = 0.1
+    const TRAY_WIDTH = 0.11
+    const color = 1 / number
+    SimObj.make_object3d({name: "box"+number, parent: "scene", geometry: "Box",
+    	scale: [BOX_SIZE, BOX_SIZE, BOX_SIZE], 
+    	position: [0 + tray * TRAY_WIDTH, 0.3, 0.1 + height * BOX_SIZE], 
+    	orientation: [0, 0, 0],
+    	material: "MeshStandard", 
+    	color: [color, color, color],
+    	wireframe: false, is_dynamic: false, mass: 1
+	})
+
 }
 
 function buildScene(state) {
 let tbl = state.table.above
 let blk = tbl[Object.keys(tbl)[0]]
+	SimObj.remove_all()
+    let tray = 1
+    let height = 0
 	while (blk) {
-		out(blk.index)
+		no = parseInt(blk.index)
+        out(no)
+        makeSimBox(tray, height, no)
+        height++
     	blk = blk.above
     }
 }
