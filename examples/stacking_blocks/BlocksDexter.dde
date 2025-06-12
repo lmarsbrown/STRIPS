@@ -1530,6 +1530,21 @@ let table1 = new Table(0);
 let initialState = {table:table1,items:[table1]};
 addOrderedStack(initialState,cloneArray(towerOrder));
 
+//display the scene
+function makeBox(tray, height, number) {
+	const box_size = 0.2
+    
+}
+
+function buildScene(state) {
+let tbl = state.table.above
+let blk = tbl[Object.keys(tbl)[0]]
+	while (blk) {
+		out(blk.index)
+    	blk = blk.above
+    }
+}
+buildScene(initialState)
 
 let table2 = new Table(0);
 let goalState = {table:table2,items:[table2]};
