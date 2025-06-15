@@ -1514,7 +1514,7 @@ let yPos = 0.312;
 let xPos = -0.013;
 
 let currentTower = 0;
-let gripperRoteRad = (10/2)/1000;
+let gripperRoteRad = (45/2)/1000;
 
 
 let towerOrder = [8,5,2,9,6,3,4,1,7];
@@ -1570,6 +1570,14 @@ let goalState = {table:table2,items:[table2]};
 addOrderedStack(goalState,[7,4,1]);
 addOrderedStack(goalState,[8,5,2]);
 addOrderedStack(goalState,[9,6,3]);
+
+//addOrderedStack(goalState,[1,2,3]);
+//addOrderedStack(goalState,[4,5,6]);
+//addOrderedStack(goalState,[7,8,9]);
+
+//addOrderedStack(goalState,[]);
+//addOrderedStack(goalState,[1,2,3,4,5,6,7,8,9]);
+//addOrderedStack(goalState,[]);
 
 console.log(goalState);
 // addStack(goalState,towerHeight-4);
@@ -1761,9 +1769,10 @@ function moveHome(list)
 }
 
 
+
 function moveToTrayDeliver(list,tray)
 {
-
+let rotoff = -10
     let excessRoteOffset = 0;
     let currentRoteOffset = 0;
 
@@ -1771,12 +1780,12 @@ function moveToTrayDeliver(list,tray)
 
     if(tray == 0)
     {
-        excessRoteOffset = 10;
+        excessRoteOffset = rotoff;
         excessYOffset = 0.004;
     }
     if(currentTower == 0)
     {
-        currentRoteOffset = 10;
+        currentRoteOffset = rotoff;
     }
 
     if(tray == 1)
@@ -1788,12 +1797,12 @@ function moveToTrayDeliver(list,tray)
 
     if(tray == 2)
     {
-        excessRoteOffset = -10;
+        excessRoteOffset = -rotoff;
         excessYOffset = -0.00;
     }
     if(currentTower == 2)
     {
-        currentRoteOffset = -10;
+        currentRoteOffset = -rotoff;
     }
 
 
@@ -1801,7 +1810,7 @@ function moveToTrayDeliver(list,tray)
 
     list.push(
     Dexter.move_to(
-        [[(tray-currentTower)*blockWidth+excessXOffset], yPos+excessYOffset, [0]],     //xyz
+        [[(tray-currentTower)*blockWidth*1.3+excessXOffset], yPos+excessYOffset, [0]],     //xyz
         [0, 0, -1],          //J5_direction
         Dexter.RIGHT_UP_OUT, //config
         null,                 //Workspace Pose
@@ -1816,6 +1825,7 @@ function moveToTrayDeliver(list,tray)
 
 function moveToTrayPickup(list,tray)
 {
+let rotoff = -10
     let excessRoteOffset = 0;
     let excessYOffset = 0;
     let excessXOffset = 0;
@@ -1824,7 +1834,7 @@ function moveToTrayPickup(list,tray)
 
     if(tray == 0)
     {
-        excessRoteOffset = 10;
+        excessRoteOffset = rotoff;
         excessYOffset = 0.004;
         //excessXOffset = -0.007;
     }
@@ -1835,7 +1845,7 @@ function moveToTrayPickup(list,tray)
     }
     if(tray == 2)
     {
-        excessRoteOffset = -10;
+        excessRoteOffset = -rotoff;
         excessYOffset = -0.00;
     }
     
@@ -1844,7 +1854,7 @@ function moveToTrayPickup(list,tray)
 
     list.push(
     Dexter.move_to(
-        [xPos+excessXOffset+blockWidth*tray, yPos+excessYOffset, [0]],     //xyz
+        [xPos+excessXOffset+blockWidth*tray*1.3, yPos+excessYOffset, [0]],     //xyz
         [0, 0, -1],          //J5_direction
         Dexter.RIGHT_UP_OUT, //config
         null,                 //Workspace Pose
