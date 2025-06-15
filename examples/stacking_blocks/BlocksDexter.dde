@@ -1507,14 +1507,14 @@ let blockWidth = 0.06;
 let blockHeight = 0.02;
 let gripperClosed = 200;
 let gripperOpen = 270;
-let baseHeight = 0.042;
+let baseHeight = 0.08; //0.042;
 let hoverHeight = 0.35;
 
 let yPos = 0.312;
 let xPos = -0.013;
 
 let currentTower = 0;
-let gripperRoteRad = (45/2)/1000;
+let gripperRoteRad = (10/2)/1000;
 
 
 let towerOrder = [8,5,2,9,6,3,4,1,7];
@@ -1532,18 +1532,16 @@ addOrderedStack(initialState,cloneArray(towerOrder));
 
 //display the scene
 function makeSimBox(tray, height, number) {
-	const BOX_SIZE = 0.1
-    const TRAY_WIDTH = 0.11
     const color = 1 / number
-    SimObj.make_object3d({name: "box"+number, parent: "scene", geometry: "Box",
-    	scale: [BOX_SIZE, BOX_SIZE, BOX_SIZE], 
-    	position: [0 + tray * TRAY_WIDTH, 0.3, 0.1 + height * BOX_SIZE], 
+    return SimObj.make_object3d({name: "box"+number, parent: "scene", geometry: "Box",
+    	scale: [blockWidth, blockWidth, blockHeight], 
+    	position: [0 + tray * blockWidth, 0.3, blockHeight/2 + height * blockHeight], 
     	orientation: [0, 0, 0],
     	material: "MeshStandard", 
     	color: [color, color, color],
-    	wireframe: false, is_dynamic: false, mass: 1
-	})
-
+    	wireframe: false, is_dynamic: false, 
+        mass: 1000.0 //setting this here seems to have no effect.
+        })
 }
 
 function buildScene(state) {
@@ -1552,10 +1550,14 @@ let blk = tbl[Object.keys(tbl)[0]]
 	SimObj.remove_all()
     let tray = 1
     let height = 0
+    let obj
 	while (blk) {
 		no = parseInt(blk.index)
-        out(no)
-        makeSimBox(tray, height, no)
+        //out(no)
+        let obj = makeSimBox(tray, height, no)
+        obj.userData.physObj.mass = 1000
+        obj.userData.physObj.kinematic = false
+      	out(obj.userData.physObj.mass)
         height++
     	blk = blk.above
     }
@@ -1588,7 +1590,7 @@ let aList = st.aStarSearch(initialState,goalState,5000,true,cloneState(initialSt
 console.log(aList);
 
 
-let jobList = [];
+let jobList = [Dexter.move_all_joints(0,0,90,0,0,0, 260)];
 moveHome(jobList);
 // moveToHeight(jobList,1);
 // gripBlock(jobList);
@@ -1733,6 +1735,11 @@ let mvJob = new Job({
     do_list: jobList
 });
 
+let resetJob = new Job({
+    name: "home",
+    show_instructions:true,
+    do_list: [Dexter.move_all_joints(0,0,0,0,0,0, 260)]
+});
 
 
 //Dexter.move_all_joints([[0],[0],[0],[0],[0],[0],260])
@@ -1910,4 +1917,3 @@ function cloneArray(arr)
     }
     return out;
 }
-
