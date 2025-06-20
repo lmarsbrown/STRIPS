@@ -4,9 +4,6 @@ along with the special "blocksDexter.js" file (instead of blocks.js) so that it 
 in the web version of DDE: DDE4. 
 https://cfry.github.io/dde4/dde/
 
-NOTE THAT IT DOES NOT DISPLAY THE BLOCKS! 
-It only displays the motion of the arm which would re-arrange the blocks.
-
 */
 
 
